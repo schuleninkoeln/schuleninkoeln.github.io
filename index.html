@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Sch&uuml;ler in K&ouml;ln</title>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<link rel="stylesheet" href="leaflet-0.7.3/leaflet.css" />
+<link rel="stylesheet" href="leaflet-0.7.3/Control.Loading.css" />
+<link rel="stylesheet" href="leaflet-0.7.3/leaflet.viewcenter.css" />
+
+<style type="text/css">
+body {
+	margin: 0;
+}
+
+html, body, #map {
+	height: 100%;
+}
+
+.info {
+	padding: 6px 8px;
+	font: 14px/16px Arial, Helvetica, sans-serif;
+	background: white;
+	background: rgba(255, 255, 255, 0.8);
+	box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
+	border-radius: 5px;
+}
+
+.info h4 {
+	margin: 0 0 5px;
+	color: #777;
+}
+
+#btn-spin {
+	position: absolute;
+	left: 200px;
+	z-index: 10;
+	font-size: 1.5em;
+}
+
+.legend {
+	text-align: left;
+	line-height: 18px;
+	color: #555;
+}
+
+.legend i {
+	width: 18px;
+	height: 18px;
+	float: left;
+	margin-right: 8px;
+	opacity: 0.7;
+}
+</style>
+<script src="koeln.js" type="text/javascript"></script>
+<script src="jquery/jquery-2.1.1.min.js"></script>
+<script src="leaflet-0.7.3/leaflet.js" type="text/javascript"></script>
+<script src="leaflet-0.7.3/Control.Loading.js" type="text/javascript"></script>
+<script src="leaflet-0.7.3/leaflet.viewcenter.js" type="text/javascript"></script>
+<script src="leaflet-0.7.3/leaflet.ajax.js" type="text/javascript"></script>
+<script src="leaflet-0.7.3/leaflet.spin.js"></script>
+<script src="leaflet-0.7.3/spin.js"></script>
+<script type="text/javascript">
+	
+</script>
+</head>
+<body>
+	<div id="map"></div>
+	<script>
+		var zoom = 12;
+		var zoomSpielplatzLayerTo = 11;
+        var maxZoom = 18;
+        var center = [ 50.94135, 6.95819 ];
+        var infoboxContent = document.title;
+        var attribution =
+        'Map by <a href="https://www.mapbox.com">Mapbox</a>; Dataset &copy; by Stadt K&ouml;ln <a href="http://www.offenedaten-koeln.de">{OFFENE DATEN:K&Ouml;LN}</a>';
+
+		// create map
+		var map = L.map('map').setView(center, zoom);
+
+		// add loading control
+		var loadingControl = L.Control.loading({
+			separate : true
+		});
+		map.addControl(loadingControl);
+
+		// infobox rechts oben	
+		var info = L.control();
+
+		info.onAdd = function(map) {
+			// create a div with a class "info"
+			this._div = L.DomUtil.create('div', 'info');
+			this.update();
+			return this._div;
+		};
+		// method that we will use to update the control based on feature properties passed
+		info.update = function(properties) {
+			this._div.innerHTML = '<h1>' + infoboxContent + '</h1>' +  (properties ?
+					'<b>' + properties.name + '</b><br />' + properties.allgemeinbildende_schulen + ' Sch&uuml;ler'
+					: 'Fahre mit der Maus &uuml;ber einen Stadtteil');
+		};
+		info.addTo(map);
+
+		var mapBox = L.tileLayer(
+				'http://{s}.tiles.mapbox.com/v3/{id}/{z}/{x}/{y}.png', {
+					maxZoom : maxZoom,
+					attribution : attribution,
+					id : 'examples.map-20v6611k'
+				});
+		map.addLayer(mapBox);
+
+		// get color depending on population density value
+		function getColor(d) {
+			return d > 6000 ? '#800026' : d > 5000 ? '#BD0026'
+					: d > 4000 ? '#E31A1C' : d > 3000 ? '#FC4E2A'
+							: d > 2000 ? '#FD8D3C' : d > 1000 ? '#FEB24C'
+									: d > 0 ? '#FED976' : '#FFFFFF';
+		}
+
+		function style(feature) {
+			return {
+				weight : 2,
+				opacity : 1,
+				color : 'white',
+				dashArray : '3',
+				fillOpacity : 0.7,
+				fillColor : getColor(feature.properties.allgemeinbildende_schulen)
+			};
+		}
+
+		function highlightFeature(e) {
+			var layer = e.target;
+
+			layer.setStyle({
+				weight : 5,
+				color : '#666',
+				dashArray : '',
+				fillOpacity : 0.7
+			});
+
+			if (!L.Browser.ie && !L.Browser.opera) {
+				layer.bringToFront();
+			}
+
+			info.update(layer.feature.properties);
+		}
+
+		var stadtteileKoelnLayer;
+
+		function resetHighlight(e) {
+			stadtteileKoelnLayer.resetStyle(e.target);
+			info.update();
+		}
+
+		function zoomToFeature(e) {
+			map.fitBounds(e.target.getBounds());
+		}
+
+		function onEachFeature(feature, layer) {
+			layer.on({
+				mouseover : highlightFeature,
+				mouseout : resetHighlight,
+				click : zoomToFeature
+			});
+		}
+		// load Layer
+		stadtteileKoelnLayer = new L.GeoJSON(
+				koeln, {
+					style : style,
+					onEachFeature : onEachFeature
+				});
+
+		map.addLayer(stadtteileKoelnLayer);
+
+		var legend = L.control({
+			position : 'bottomright'
+		});
+
+		legend.onAdd = function(map) {
+
+			var div = L.DomUtil.create('div', 'info legend'), grades = [ 0, 0,
+					1000, 2000, 3000, 4000, 5000, 6000 ], labels = [], from, to;
+
+			for (var i = 0; i < grades.length; i++) {
+				from = grades[i];
+				to = grades[i + 1];
+				if (i == 0) {
+					labels.push('<i style="background:' + getColor(from)
+							+ '"></i> ' + from + (to ? '&ndash;' + to : ''));
+				} else {
+					labels.push('<i style="background:' + getColor(from + 1)
+							+ '"></i> ' + from + (to ? '&ndash;' + to : '+'));
+				}
+			}
+			div.innerHTML = labels.join('<br>');
+			return div;
+		};
+
+		legend.addTo(map);
+
+		var scale = L.control.scale();
+		map.addControl(scale);
+	</script>
+</body>
+</html>

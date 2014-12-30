@@ -1,0 +1,3 @@
+Schulen in Köln
+
+Ziel dieses Projektes ist es Schulen und Schüler bezogen auf Stadtteile in Köln anzuzeigen. Beim Überfahren der farblich durch die Anzahl der Schüler unterschiedenen Stadtteile, wird die Anzahl der Schüler im Stadtteil angezeigt. In einem weiteren Schritt sollen die verfügbaren Informationen bezüglich der Bevölkerungsstruktur angezeigt werden. Ausserdem weitere Informationen zu den Schulen selber.
