@@ -9,48 +9,81 @@
 <link rel="stylesheet" href="leaflet-0.7.3/Control.Loading.css" />
 
 <style type="text/css">
-body {
-	margin: 0;
-}
-
-html, body, #map {
-	height: 100%;
-}
+    html, body, #map {
+        height: 100%;
+    }
 
 .info {
-	padding: 6px 8px;
-	font: 14px/16px Arial, Helvetica, sans-serif;
-	background: white;
-	background: rgba(255, 255, 255, 0.8);
-	box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
-	border-radius: 5px;
+    padding: 6px 8px;
+    font: 14px/16px Arial, Helvetica, sans-serif;
+    background: rgba(255, 255, 255, 0.5);
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+    border-radius: 5px;
+}
+
+.info table {
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: 5px;
+}
+
+.info th {
+    text-align: right;
+    padding-right:5px;
+}
+
+.info td {
+    text-align: right;
+    padding-right:5px;
+}
+
+h1 {
+    color: #555;
+    font-size: 1.5em;
+}
+
+h2 {
+    color: #555;
+    font-size: 1.2em;
+}
+
+.info.leaflet-control table {
+    color: #555;
+    font-size: 0.9em;
+}
+
+.info.leaflet-control th {
+    margin: 0 0 5px;
 }
 
 .info h4 {
-	margin: 0 0 5px;
-	color: #777;
+    margin: 0 0 5px;
+    color: #777;
 }
 
 #btn-spin {
-	position: absolute;
-	left: 200px;
-	z-index: 10;
-	font-size: 1.5em;
+    position: absolute;
+    left: 200px;
+    z-index: 10;
+    font-size: 1.5em;
 }
 
 .legend {
-	text-align: left;
-	line-height: 18px;
-	color: #555;
+    text-align: left;
+    line-height: 18px;
+    background: rgba(255, 255, 255, 0.5);
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+    border-radius: 5px;
 }
 
 .legend i {
-	width: 18px;
-	height: 18px;
-	float: left;
-	margin-right: 8px;
-	opacity: 0.7;
+    width: 18px;
+    height: 18px;
+    float: left;
+    margin-right: 8px;
+    opacity: 0.7;
+    font: 14px/16px Arial, Helvetica, sans-serif;
 }
+
 .pie-legend {
     text-align: left;
     line-height: 18px;
@@ -68,8 +101,56 @@ html, body, #map {
     opacity: 1.0;
 }
 
+canvas#bevoelkerungChart {
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: 5px;
+}
+
+div#pieBevoelkerungLegend {
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: 5px;
+}
+
+/*
+ * These CSS rules affect the tooltips within maps with the custom-popup
+ * class. See the full CSS for all customizable options:
+ * https://github.com/mapbox/mapbox.js/blob/001754177f3985c0e6b4a26e3c869b0c66162c99/theme/style.css#L321-L366
+ */
+.leaflet-popup-content-wrapper {
+    background:rgba(200,200,200,0.5);
+    color:#000;
+    text-shadow: 1em 1em 1em #FFF;
+    opacity: 1;
+}
+.info .leaflet-control {
+    background:rgba(200,200,200,0.5);
+    color:#000;
+    text-shadow: 1em 1em 1em #FFF;
+    opacity: 1;
+}
+
+.leaflet-popup-content table {
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: 5px;
+}
+
+.leaflet-popup-content-wrapper a {
+    color:rgba(255,255,255,0.5);
+}
+.leaflet-popup-tip-container {
+    background:rgba(256,256,256,1.0);
+    width:30px;
+    height:15px;
+    opacity: 0.0;
+}
+.leaflet-popup-tip {
+    border-left:15px solid transparent;
+    border-right:15px solid transparent;
+    border-top:15px solid #2c3e50;
+}
 </style>
 <script src="koeln.js" type="text/javascript"></script>
+<script src="koeln-schulen.js" type="text/javascript"></script>
 <script src="jquery/jquery-2.1.1.min.js"></script>
 <script src="leaflet-0.7.3/leaflet.js" type="text/javascript"></script>
 <script src="chart.js.1.0.1-beta.4/Chart.min.js"></script>
@@ -128,13 +209,32 @@ html, body, #map {
             document.getElementById("pieBevoelkerungLegend").innerHTML = bevoelkerungChart.generateLegend();
     };
     
-		// method that we will use to update the control based on feature properties passed
-		info.update = function(properties) {
-			this._div.innerHTML = '<h1>' + infoboxContent + '</h1>' +  (properties ?
-					'<b>' + properties.name + '</b><br />' + properties.allgemeinbildende_schulen + ' Sch&uuml;ler'
-					: 'Fahre mit der Maus &uuml;ber einen Stadtteil');
-		};
-		info.addTo(map);
+        info.update = function(properties) {
+            if (properties) {
+                infoboxContent = '<h2>' + properties.name + '</h2>'
+                + '<table>'
+                + '<tr><th></th><th>Sch&uuml;ler</th><th>Schulen</th></tr>'
+                + '<tr><th>Grundschule</th>'
+                + '<td>' + properties.schueler_grundschule + '</td><td>' + properties.schulen_grundschule + '</td></tr>'
+                + '<tr><th>Hauptschule</th>'
+                + '<td>' + properties.schueler_hauptschule + '</td><td>' + properties.schulen_hauptschule + '</td></tr>'
+                + '<tr><th>Realschule</th>'
+                + '<td>' + properties.schueler_realschule + '</td><td>' + properties.schulen_realschule + '</td></tr>'
+                + '<tr><th>Gymnasium</th>'
+                + '<td>' + properties.schueler_gymnasium + '</td><td>' + properties.schulen_gymnasium + '</td></tr>'
+                + '<tr><th>Gesamtschule</th>'
+                + '<td>' + properties.schueler_gesamtschule + '</td><td>' + properties.schulen_gesamtschule + '</td></tr>'
+                + '<tr><th>F&ouml;rderschle</th>'
+                + '<td>' + properties.schueler_foerderschule + '</td><td>' + properties.schulen_foerderschule + '</td></tr>'
+                + '<tr><th>Gesamt</th>'
+                + '<th>' + properties.schueler_allgemeinbildende_schulen + '</th><th>' + properties.schulen_allgemeinbildende_schulen + '</th></tr>'
+                + '</table>';
+            } 
+            this._div.innerHTML = '<h1>' + document.title + '</h1>'
+            + infoboxContent 
+            
+        };
+    info.addTo(map);
 
 		var mapBox = L.tileLayer(
 				'http://{s}.tiles.mapbox.com/v3/{id}/{z}/{x}/{y}.png', {
@@ -159,7 +259,7 @@ html, body, #map {
 				color : 'white',
 				dashArray : '3',
 				fillOpacity : 0.7,
-				fillColor : getColor(feature.properties.allgemeinbildende_schulen)
+				fillColor : getColor(feature.properties.schueler_allgemeinbildende_schulen)
 			};
 		}
 
@@ -189,6 +289,7 @@ html, body, #map {
 
 		function zoomToFeature(e) {
 			callBevoelkerungPieChart(e.target.feature.properties.ref);
+            stadtteilname = e.target.feature.properties.name;
 		}
 
 		function onEachFeature(feature, layer) {
@@ -198,11 +299,11 @@ html, body, #map {
 				click : zoomToFeature
 			});
 
-            var popupContent = "<p>Altersstruktur "
-            + feature.properties.name
-            + "</p>"
-            + "<canvas id=\"bevoelkerungChart\" width=\"150\" height=\"100\"></canvas>"
-            + "<div id=\"pieBevoelkerungLegend\"></div>";
+            var popupContent = "<h1>Altersstruktur</h1><h2>"
+                + feature.properties.name
+                + "</h2>"
+                + "<canvas id=\"bevoelkerungChart\" width=\"150\" height=\"100\"></canvas>"
+                + "<div id=\"pieBevoelkerungLegend\"></div>";
             layer.bindPopup(popupContent);
             
 		}
@@ -214,6 +315,24 @@ html, body, #map {
 				});
 
 		map.addLayer(stadtteileKoelnLayer);
+
+        var schulenLayer = new L.GeoJSON(schulen, {
+                                         onEachFeature : function (feature, layer) {
+                                         var popupContent = "<h1>Schule</h1>"
+                                         + "<table>"
+                                         + "<tr><th colspan='2'>" + feature.properties.Schulname + "</th></tr>"
+                                         + "<tr><td colspan='2'>" + feature.properties.Adresse + "</td></tr>"
+                                         + "<tr><td colspan='2'>" + feature.properties.Postzustellbezirk + " K&ouml;ln</td></tr>"
+                                         + "<tr><th colspan='2'>&nbsp;</th></tr>"
+                                         + "<tr><td>Typ:&nbsp;</td><td>" + feature.properties.Schultyp + "</td></tr>"
+                                         + "<tr><td>Art:&nbsp;</td><td>" + feature.properties.Schulart + "</td></tr>"
+                                         + "</table>";
+                                         layer.bindPopup(popupContent);
+                                         }
+                                         });
+                                 
+        map.addLayer(schulenLayer);
+
 
 		var legend = L.control({
 			position : 'bottomright'
