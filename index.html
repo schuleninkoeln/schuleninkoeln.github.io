@@ -213,26 +213,29 @@ div#pieBevoelkerungLegend {
             if (properties) {
                 infoboxContent = '<h2>' + properties.name + '</h2>'
                 + '<table>'
-                + '<tr><th></th><th>Sch&uuml;ler</th><th>Schulen</th></tr>'
+                + '<tr><th></th><th colspan="2" valign="left">Sch&uuml;ler</th><th>Schulen</th></tr>'
+                + '<tr><th></th><th>% an Bev.</th><th>Anzahl</th><th>Anzahl</th></tr>'
                 + '<tr><th>Grundschule</th>'
-                + '<td>' + properties.schueler_grundschule + '</td><td>' + properties.schulen_grundschule + '</td></tr>'
+                + '<td>' + properties.schueler_grundschule_proz + '%</td><td>' + properties.schueler_grundschule + '</td><td>' + properties.schulen_grundschule + '</td></tr>'
                 + '<tr><th>Hauptschule</th>'
-                + '<td>' + properties.schueler_hauptschule + '</td><td>' + properties.schulen_hauptschule + '</td></tr>'
+                + '<td>' + properties.schueler_hauptschule_proz + '%</td><td>' + properties.schueler_hauptschule + '</td><td>' + properties.schulen_hauptschule + '</td></tr>'
                 + '<tr><th>Realschule</th>'
-                + '<td>' + properties.schueler_realschule + '</td><td>' + properties.schulen_realschule + '</td></tr>'
+                + '<td>' + properties.schueler_realschule_proz + '%</td><td>' + properties.schueler_realschule + '</td><td>' + properties.schulen_realschule + '</td></tr>'
                 + '<tr><th>Gymnasium</th>'
-                + '<td>' + properties.schueler_gymnasium + '</td><td>' + properties.schulen_gymnasium + '</td></tr>'
+                + '<td>' + properties.schueler_gymnasium_proz + '%</td><td>' + properties.schueler_gymnasium + '</td><td>' + properties.schulen_gymnasium + '</td></tr>'
                 + '<tr><th>Gesamtschule</th>'
-                + '<td>' + properties.schueler_gesamtschule + '</td><td>' + properties.schulen_gesamtschule + '</td></tr>'
-                + '<tr><th>F&ouml;rderschle</th>'
-                + '<td>' + properties.schueler_foerderschule + '</td><td>' + properties.schulen_foerderschule + '</td></tr>'
+                + '<td>' + properties.schueler_gesamtschule_proz + '%</td><td>' + properties.schueler_gesamtschule + '</td><td>' + properties.schulen_gesamtschule + '</td></tr>'
+                + '<tr><th>F&ouml;rderschule</th>'
+                + '<td>' + properties.schueler_foerderschule_proz + '%</td><td>' + properties.schueler_foerderschule + '</td><td>' + properties.schulen_foerderschule + '</td></tr>'
+                + '<tr><th>Berufskolleg</th>'
+                + '<td colspan="2">keine Information</td><td>' + properties.schulen_berufskolleg + '</td></tr>'
                 + '<tr><th>Gesamt</th>'
-                + '<th>' + properties.schueler_allgemeinbildende_schulen + '</th><th>' + properties.schulen_allgemeinbildende_schulen + '</th></tr>'
-                + '</table>';
+                + '<th>' + properties.schueler_allgemeinbildende_schulen_proz + '%</th><th>' + properties.schueler_allgemeinbildende_schulen + '</th><th>' + properties.schulen_allgemeinbildende_schulen + '</th></tr>'
+                + '</table>'
+                + '<sub>Daten der Sch&uuml;ler von 2012; Daten der Schulen von 2014</sub>';
             } 
             this._div.innerHTML = '<h1>' + document.title + '</h1>'
             + infoboxContent 
-            
         };
     info.addTo(map);
 
@@ -290,6 +293,7 @@ div#pieBevoelkerungLegend {
 		function zoomToFeature(e) {
 			callBevoelkerungPieChart(e.target.feature.properties.ref);
             stadtteilname = e.target.feature.properties.name;
+            highlightFeature(e);
 		}
 
 		function onEachFeature(feature, layer) {
@@ -354,7 +358,8 @@ div#pieBevoelkerungLegend {
 							+ '"></i> ' + from + (to ? '&ndash;' + to : '+'));
 				}
 			}
-			div.innerHTML = labels.join('<br>');
+            div.innerHTML = "<h1>Sch&uuml;ler</h1>";
+			div.innerHTML += labels.join('<br>');
 			return div;
 		};
 
