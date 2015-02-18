@@ -229,11 +229,17 @@ div#pieBevoelkerungLegend {
                 + '<td>' + properties.schueler_foerderschule_proz + '%</td><td>' + properties.schueler_foerderschule + '</td><td>' + properties.schulen_foerderschule + '</td></tr>'
                 + '<tr><th>Berufskolleg</th>'
                 + '<td colspan="2">keine Information</td><td>' + properties.schulen_berufskolleg + '</td></tr>'
+                + '<tr><th>2. Bildungsweg</th>'
+                + '<td colspan="2">keine Information</td><td>' + properties.schulen_zweiterBildungsweg + '</td></tr>'
+                + '<tr><th>Freie Waldorfschule</th>'
+                + '<td colspan="2">keine Information</td><td>' + properties.schulen_freieWaldorfschule + '</td></tr>'
                 + '<tr><th>Gesamt</th>'
                 + '<th>' + properties.schueler_allgemeinbildende_schulen_proz + '%</th><th>' + properties.schueler_allgemeinbildende_schulen + '</th><th>' + properties.schulen_allgemeinbildende_schulen + '</th></tr>'
                 + '</table>'
-                + '<sub>Daten der Sch&uuml;ler von 2012; Daten der Schulen von 2014</sub>';
-            } 
+                + '<sub><a href="http://www.offenedaten-koeln.de/dataset/schülerinnen-und-schüler" target="_blank">Daten Sch&uuml;lerinnen und Sch&uuml;ler (2012)</a>;</br>'
+                + '<a href="http://www.offenedaten-koeln.de/dataset/schulen-köln" target="_blank">Daten Schulen (2014)</a>;</br>'
+                + '<a href="http://www.offenedaten-koeln.de/dataset/einwohner-nach-altersgruppen" target="_blank">Daten Bev&ouml;lkerungsstruktur (2012)</a></sub>';
+            }
             this._div.innerHTML = '<h1>' + document.title + '</h1>'
             + infoboxContent 
         };
