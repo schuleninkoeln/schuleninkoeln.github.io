@@ -11,6 +11,7 @@
 <style type="text/css">
     html, body, #map {
         height: 100%;
+        margin: 0px;
     }
 
 .info {
@@ -148,6 +149,18 @@ div#pieBevoelkerungLegend {
     border-right:15px solid transparent;
     border-top:15px solid #2c3e50;
 }
+.leaflet-control-layers-toggle:after{
+    content:"Schulart";
+    color:#000 ;
+}
+.leaflet-control-layers-toggle{
+    width:auto;
+    background-position:3px 50% ;
+    padding:3px;
+    padding-left:36px;
+    text-decoration:none;
+    line-height:36px;
+}
 </style>
 <script src="koeln.js" type="text/javascript"></script>
 <script src="koeln-schulen.js" type="text/javascript"></script>
@@ -156,7 +169,7 @@ div#pieBevoelkerungLegend {
 <script src="leaflet-0.7.3/leaflet.js" type="text/javascript"></script>
 <script src="chart.js.1.0.1-beta.4/Chart.min.js"></script>
 <script type="text/javascript">
-	
+
 </script>
 </head>
 <body>
@@ -168,7 +181,7 @@ div#pieBevoelkerungLegend {
         var center = [ 50.94135, 6.95819 ];
         var infoboxContent = document.title;
         var attribution =
-        'Map by <a href="https://www.mapbox.com">Mapbox</a>; Dataset &copy; by Stadt K&ouml;ln <a href="http://www.offenedaten-koeln.de">{OFFENE DATEN:K&Ouml;LN}</a>';
+        'Map by <a href="https://www.mapbox.com">Mapbox</a>; <a href="http://www.offenedaten-koeln.de">{OFFENE DATEN:K&Ouml;LN}</a>';
 
 		// create map
 		var map = L.map('map').setView(center, zoom);
@@ -212,7 +225,9 @@ div#pieBevoelkerungLegend {
     
         info.update = function(properties) {
             if (properties) {
-                infoboxContent = '<h2>' + properties.name + '</h2>'
+                infoboxContent = '<a class="leaflet-popup-close-button" href="#close">x</a>'
+                + '<h1>' + document.title + '</h1>'
+                + '<h2>' + properties.name + '</h2>'
                 + '<table>'
                 + '<tr><th></th><th colspan="2" valign="left">Sch&uuml;ler</th><th>Schulen</th></tr>'
                 + '<tr><th></th><th>% an Bev.</th><th>Anzahl</th><th>Anzahl</th></tr>'
@@ -241,10 +256,9 @@ div#pieBevoelkerungLegend {
                 + '<a href="http://www.offenedaten-koeln.de/dataset/schulen-köln" target="_blank">Daten Schulen (2014)</a>;</br>'
                 + '<a href="http://www.offenedaten-koeln.de/dataset/einwohner-nach-altersgruppen" target="_blank">Daten Bev&ouml;lkerungsstruktur (2012)</a></sub>';
             } else {
-                infoboxContent = '';
+                infoboxContent = '<h1>' + document.title + '</h1>' + '<p>Klicke Stadtteil f&uuml;r mehr Information</p>';
             }
-            this._div.innerHTML = '<h1>' + document.title + '</h1>'
-            + infoboxContent 
+            this._div.innerHTML = infoboxContent;
         };
     info.addTo(map);
 
@@ -274,7 +288,7 @@ div#pieBevoelkerungLegend {
 				fillColor : getColor(feature.properties.schueler_allgemeinbildende_schulen)
 			};
 		}
-
+    
 		function highlightFeature(e) {
 			var layer = e.target;
 
@@ -336,6 +350,8 @@ div#pieBevoelkerungLegend {
 			position : 'bottomright'
 		});
 
+        // http://gis.stackexchange.com/questions/68941/how-to-add-remove-legend-with-leaflet-layers-control
+        
 		legend.onAdd = function(map) {
 
 			var div = L.DomUtil.create('div', 'info legend'), grades = [ 0, 0,
@@ -352,7 +368,7 @@ div#pieBevoelkerungLegend {
 							+ '"></i> ' + from + (to ? '&ndash;' + to : '+'));
 				}
 			}
-            div.innerHTML = "<h1>Sch&uuml;ler</h1>";
+            div.innerHTML = "<h1>Sch&uuml;ler</h1><p>Anzahl Sch&uuml;ler</br>je Stadtteil</p>";
 			div.innerHTML += labels.join('<br>');
 			return div;
 		};
@@ -365,6 +381,23 @@ div#pieBevoelkerungLegend {
         var baseLayers = {
             "MapBox" : mapBox
         };
+    
+    function pointToSchulenLayer(feature, latlng) {
+
+        var leafIcon = L.icon({
+            shadowUrl: 'leaflet-0.7.3/images/marker-shadow.png',
+            iconUrl: 'leaflet-0.7.3/images/berufskolleg.marker-icon.png'
+        });
+                              
+        return L.marker(latlng, {icon: leafIcon});
+    }
+    
+    function styleSchulenLayer() {
+        var leafIcon = L.icon({
+            shadowUrl: 'leaflet-0.7.3/images/marker-shadow.png',
+            iconUrl: 'leaflet-0.7.3/images/berufskolleg.marker-icon.png'
+            });
+    }
     
     function onEachSchulenFeature(feature, layer) {
         var popupContent =
@@ -380,7 +413,7 @@ div#pieBevoelkerungLegend {
         layer.bindPopup(popupContent);
     }
 
-    var berufskollegLayer = new L.GeoJSON(berufskolleg, {onEachFeature : onEachSchulenFeature});
+    var berufskollegLayer = new L.GeoJSON(berufskolleg, {pointToLayer: pointToSchulenLayer}, {onEachFeature : onEachSchulenFeature});
     var foerderderschuleLayer = new L.GeoJSON(foerderderschule, {onEachFeature : onEachSchulenFeature});
     var freiewaldorfschuleLayer = new L.GeoJSON(freiewaldorfschule, {onEachFeature : onEachSchulenFeature});
     var gesamtschuleLayer = new L.GeoJSON(gesamtschule, {onEachFeature : onEachSchulenFeature});
@@ -403,7 +436,7 @@ div#pieBevoelkerungLegend {
         "Zweiter Bildungsweg" : zweiterbildungswegLayer
     };
     // Layers dem Control-Layer uebergeben.
-    var layers = new L.Control.Layers(baseLayers, overlays, {
+    var layers = new L.Control.Layers([], overlays, {
                                       collapsed : true,
                                       position : 'topright'
                                       });
