@@ -180,8 +180,6 @@ div#pieBevoelkerungLegend {
         var maxZoom = 18;
         var center = [ 50.94135, 6.95819 ];
         var infoboxContent = document.title;
-        var attribution =
-        'Map by <a href="https://www.mapbox.com">Mapbox</a>; <a href="http://www.offenedaten-koeln.de">{OFFENE DATEN:K&Ouml;LN}</a>';
 
 		// create map
 		var map = L.map('map').setView(center, zoom);
@@ -262,14 +260,11 @@ div#pieBevoelkerungLegend {
         };
     info.addTo(map);
 
-		var mapBox = L.tileLayer(
-				'http://{s}.tiles.mapbox.com/v3/{id}/{z}/{x}/{y}.png', {
-					maxZoom : maxZoom,
-					attribution : attribution,
-					id : 'examples.map-20v6611k'
-				});
-		map.addLayer(mapBox);
-
+        var osmUrl='http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+        var osmAttrib='Map data © <a href="http://openstreetmap.org">OpenStreetMap</a> contributors; <a href="http://www.offenedaten-koeln.de">{OFFENE DATEN:K&Ouml;LN}</a>';
+        var osm = new L.TileLayer(osmUrl, {minZoom: 10, maxZoom: 13, attribution: osmAttrib});
+        map.addLayer(osm);
+        
 		// get color depending on population density value
 		function getColor(d) {
 			return d > 6000 ? '#800026' : d > 5000 ? '#BD0026'
@@ -413,7 +408,7 @@ div#pieBevoelkerungLegend {
         layer.bindPopup(popupContent);
     }
 
-    var berufskollegLayer = new L.GeoJSON(berufskolleg, {pointToLayer: pointToSchulenLayer}, {onEachFeature : onEachSchulenFeature});
+    var berufskollegLayer = new L.GeoJSON(berufskolleg, {onEachFeature : onEachSchulenFeature});
     var foerderderschuleLayer = new L.GeoJSON(foerderderschule, {onEachFeature : onEachSchulenFeature});
     var freiewaldorfschuleLayer = new L.GeoJSON(freiewaldorfschule, {onEachFeature : onEachSchulenFeature});
     var gesamtschuleLayer = new L.GeoJSON(gesamtschule, {onEachFeature : onEachSchulenFeature});
