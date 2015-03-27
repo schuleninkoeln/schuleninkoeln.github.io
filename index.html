@@ -36,6 +36,9 @@
     text-align: right;
     padding-right:5px;
 }
+.leaflet-popup-content td a {
+    color: gray;
+}
 
 h1 {
     color: #555;
@@ -374,18 +377,9 @@ div#pieBevoelkerungLegend {
 		map.addControl(scale);
         
         var baseLayers = {
-            "MapBox" : mapBox
+            "OSM" : osm
         };
     
-    function pointToSchulenLayer(feature, latlng) {
-
-        var leafIcon = L.icon({
-            shadowUrl: 'leaflet-0.7.3/images/marker-shadow.png',
-            iconUrl: 'leaflet-0.7.3/images/berufskolleg.marker-icon.png'
-        });
-                              
-        return L.marker(latlng, {icon: leafIcon});
-    }
     
     function styleSchulenLayer() {
         var leafIcon = L.icon({
@@ -395,6 +389,7 @@ div#pieBevoelkerungLegend {
     }
     
     function onEachSchulenFeature(feature, layer) {
+        var htmlAdresse = "http://www.bildung.koeln.de/schule/schulen_koeln/perform_schulen_suche.html?schname=" + escape(feature.properties.Schulname) + "&str=" + escape(feature.properties.Adresse);
         var popupContent =
         "<h1>Schule</h1>"
         + "<table>"
@@ -404,6 +399,7 @@ div#pieBevoelkerungLegend {
         + "<tr><th colspan='2'>&nbsp;</th></tr>"
         + "<tr><td>Typ:&nbsp;</td><td>" + feature.properties.Schultyp + "</td></tr>"
         + "<tr><td>Art:&nbsp;</td><td>" + feature.properties.Schulart + "</td></tr>"
+        + "<tr><td colspan='2'><a href='" + htmlAdresse + "' target='_blank'>K&ouml;lner Bildungsportal</a></td></tr>"
         + "</table>";
         layer.bindPopup(popupContent);
     }
@@ -435,7 +431,7 @@ div#pieBevoelkerungLegend {
                                       collapsed : true,
                                       position : 'topright'
                                       });
-                                      map.addControl(layers);
+    map.addControl(layers);
 
 	</script>
 </body>
